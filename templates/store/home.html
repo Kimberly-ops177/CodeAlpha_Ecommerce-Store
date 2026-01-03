@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}TechMart - Shop Electronics & Gadgets Online{% endblock %}
+
+{% block category_nav %}
+<div class="category-bar">
+    <div class="container">
+        <ul class="categories-list">
+            <li class="category-item">
+                <a href="{% url 'home' %}" class="category-link {% if not selected_category %}active{% endif %}">
+                    <span class="category-icon">🛍️</span>
+                    <span class="category-name">All Products</span>
+                </a>
+            </li>
+            {% for category in categories %}
+            <li class="category-item">
+                <a href="?category={{ category.id }}" class="category-link {% if selected_category.id == category.id %}active{% endif %}">
+                    <span class="category-icon">{{ category.icon }}</span>
+                    <span class="category-name">{{ category.name }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    {% if not selected_category %}
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>
+                {% if user.is_authenticated %}
+                    Welcome to TechMart {{ user.username }}
+                {% else %}
+                    Welcome to TechMart
+                {% endif %}
+            </h1>
+            <p>Discover Amazing Deals on Electronics & Tech Accessories</p>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Featured Products -->
+    {% if not selected_category and featured_products %}
+    <section class="featured-section">
+        <div class="section-header">
+            <h2 class="section-title">⭐ Featured Deals</h2>
+            <a href="#all-products" class="view-all-link">View All →</a>
+        </div>
+        <div class="products-grid">
+            {% for product in featured_products %}
+                <div class="product-card">
+                    <a href="{% url 'product_detail' product.id %}" style="text-decoration: none; color: inherit;">
+                        <div class="product-image-container">
+                            {% if product.get_image_url %}
+                                <img src="{{ product.get_image_url }}" alt="{{ product.name }}" class="product-image">
+                            {% else %}
+                                <div class="product-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                    {{ product.name.0 }}
+                                </div>
+                            {% endif %}
+                            {% if product.get_discount_percentage %}
+                                <span class="discount-badge">-{{ product.get_discount_percentage }}%</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            {% if product.category %}
+                                <div class="product-category">{{ product.category.name }}</div>
+                            {% endif %}
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <div class="product-price-container">
+                                <span class="product-price">Ksh {{ product.price }}</span>
+                                {% if product.original_price and product.original_price > product.price %}
+                                    <span class="product-original-price">Ksh {{ product.original_price }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="product-stock">
+                                {% if product.stock > 0 %}
+                                    <span class="stock-badge stock-in">✓ In Stock</span>
+                                {% else %}
+                                    <span class="stock-badge stock-out">Out of Stock</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- All Products -->
+    <section id="all-products">
+        <div class="section-header">
+            <h2 class="section-title">
+                {% if selected_category %}
+                    {{ selected_category.icon }} {{ selected_category.name }}
+                {% else %}
+                    All Products
+                {% endif %}
+            </h2>
+        </div>
+
+        {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                    <div class="product-card">
+                        <a href="{% url 'product_detail' product.id %}" style="text-decoration: none; color: inherit;">
+                            <div class="product-image-container">
+                                {% if product.get_image_url %}
+                                    <img src="{{ product.get_image_url }}" alt="{{ product.name }}" class="product-image">
+                                {% else %}
+                                    <div class="product-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                        {{ product.name.0 }}
+                                    </div>
+                                {% endif %}
+                                {% if product.get_discount_percentage %}
+                                    <span class="discount-badge">-{{ product.get_discount_percentage }}%</span>
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                {% if product.category %}
+                                    <div class="product-category">{{ product.category.name }}</div>
+                                {% endif %}
+                                <h3 class="product-name">{{ product.name }}</h3>
+                                <div class="product-price-container">
+                                    <span class="product-price">Ksh {{ product.price }}</span>
+                                    {% if product.original_price and product.original_price > product.price %}
+                                        <span class="product-original-price">Ksh {{ product.original_price }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="product-stock">
+                                    {% if product.stock > 0 %}
+                                        <span class="stock-badge stock-in">✓ In Stock</span>
+                                    {% else %}
+                                        <span class="stock-badge stock-out">Out of Stock</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📦</div>
+                <h2>No products found</h2>
+                <p>Check back soon for new arrivals!</p>
+                {% if selected_category %}
+                    <a href="{% url 'home' %}" class="btn btn-primary">View All Products</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

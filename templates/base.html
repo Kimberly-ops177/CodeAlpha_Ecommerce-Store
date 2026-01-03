@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TechMart - Your One-Stop Tech Shop{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div>Welcome to TechMart - Your Trusted Electronics Store</div>
+            <div>
+                {% if user.is_authenticated %}
+                    <span>Hello, {{ user.username }}!</span>
+                {% else %}
+                    <a href="{% url 'login' %}">Sign In</a> | <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="{% url 'home' %}" class="logo">
+                TechMart
+                <span class="logo-sub">Electronics & More</span>
+            </a>
+
+            <div class="search-bar">
+                <input type="text" placeholder="Search for products..." id="searchInput">
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}"><span class="nav-icon">🏠</span> Home</a></li>
+                {% if user.is_authenticated %}
+                    <li>
+                        <a href="{% url 'cart' %}" style="position: relative; display: inline-block;">
+                            <span class="nav-icon">🛒</span> Cart
+                            {% if cart_count > 0 %}
+                                <span class="badge">{{ cart_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'orders' %}" style="position: relative; display: inline-block;">
+                            <span class="nav-icon">📦</span> Orders
+                            {% if ongoing_orders_count > 0 %}
+                                <span class="badge">{{ ongoing_orders_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li><a href="{% url 'logout' %}"><span class="nav-icon">🚪</span> Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}"><span class="nav-icon">👤</span> Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Category Navigation -->
+    {% block category_nav %}
+    {% endblock %}
+
+    <!-- Messages -->
+    <div class="container">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About TechMart</h3>
+                    <p>Your trusted destination for quality electronics and tech accessories. We bring you the latest gadgets at unbeatable prices.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Shop Now</a></li>
+                        <li><a href="{% url 'about' %}">About Us</a></li>
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                        <li><a href="{% url 'faqs' %}">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="{% url 'faqs' %}">Shipping Info</a></li>
+                        <li><a href="{% url 'faqs' %}">Returns</a></li>
+                        <li><a href="{% url 'orders' %}">Track Order</a></li>
+                        <li><a href="{% url 'contact' %}">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li>📧 support@techmart.com</li>
+                        <li>📱 +254796996889</li>
+                        <li>📍 Joskim Annex, Jerusalem Avenue, Juja</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 TechMart. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

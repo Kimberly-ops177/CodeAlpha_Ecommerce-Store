@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - TechMart{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Checkout</h1>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin: 30px 0;">
+    <div>
+        <div class="form-card" style="max-width: 100%; margin: 0;">
+            <h2>Order Information</h2>
+            <form method="POST" id="checkoutForm">
+                {% csrf_token %}
+
+                <!-- Customer Details -->
+                <div style="background: var(--light-gray); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px; color: var(--dark-color);">Customer Details</h3>
+                    <div class="form-group">
+                        <label for="customer_name">Full Name:</label>
+                        <input type="text" name="customer_name" id="customer_name" value="{{ user.get_full_name|default:user.username }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer_phone">Phone Number:</label>
+                        <input type="tel" name="customer_phone" id="customer_phone" placeholder="+254 7XX XXXXXX" required>
+                    </div>
+                </div>
+
+                <!-- Delivery Method -->
+                <div style="background: var(--light-gray); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px; color: var(--dark-color);">Delivery Method</h3>
+                    <div style="display: grid; gap: 15px;">
+                        <label class="delivery-option" style="display: flex; align-items: start; padding: 15px; background: white; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                            <input type="radio" name="delivery_method" value="doorstep" checked style="margin-right: 12px; margin-top: 4px;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 5px;">🚚 Doorstep Delivery</div>
+                                <div style="color: #666; font-size: 0.9rem;">We'll deliver to your specified address</div>
+                            </div>
+                        </label>
+                        <label class="delivery-option" style="display: flex; align-items: start; padding: 15px; background: white; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                            <input type="radio" name="delivery_method" value="store_pickup" style="margin-right: 12px; margin-top: 4px;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 5px;">🏪 Store Pickup</div>
+                                <div style="color: #666; font-size: 0.9rem;">Pick up from our store at Joskim Annex, Juja</div>
+                                <div style="color: var(--success-color); font-size: 0.85rem; margin-top: 3px;">You'll be notified when ready!</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div id="addressSection" style="background: var(--light-gray); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px; color: var(--dark-color);">Shipping Address</h3>
+                    <div class="form-group">
+                        <label for="shipping_address">Delivery Address:</label>
+                        <textarea name="shipping_address" id="shipping_address" rows="4" placeholder="Enter your full delivery address including street, building, apartment number, and any landmarks"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-bottom: 15px;">Place Order</button>
+                <a href="{% url 'cart' %}" class="btn" style="display: block; text-align: center; width: 100%;">Back to Cart</a>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .delivery-option:has(input:checked) {
+            border-color: var(--primary-color) !important;
+            background: #fff5f2 !important;
+        }
+        .delivery-option:hover {
+            border-color: var(--secondary-color);
+        }
+    </style>
+
+    <script>
+        // Show/hide address section based on delivery method
+        const deliveryRadios = document.querySelectorAll('input[name="delivery_method"]');
+        const addressSection = document.getElementById('addressSection');
+        const addressTextarea = document.getElementById('shipping_address');
+
+        function updateAddressRequirement() {
+            const selectedMethod = document.querySelector('input[name="delivery_method"]:checked').value;
+            if (selectedMethod === 'store_pickup') {
+                addressSection.style.display = 'none';
+                addressTextarea.required = false;
+                addressTextarea.value = 'Store Pickup - Joskim Annex, Jerusalem Avenue, Juja';
+            } else {
+                addressSection.style.display = 'block';
+                addressTextarea.required = true;
+                if (addressTextarea.value === 'Store Pickup - Joskim Annex, Jerusalem Avenue, Juja') {
+                    addressTextarea.value = '';
+                }
+            }
+        }
+
+        deliveryRadios.forEach(radio => {
+            radio.addEventListener('change', updateAddressRequirement);
+        });
+
+        // Initialize on page load
+        updateAddressRequirement();
+    </script>
+
+    <div>
+        <div class="cart-total">
+            <h2>Order Summary</h2>
+            {% for item in cart_items %}
+                <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                    <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                    <span>Ksh {{ item.get_total }}</span>
+                </div>
+            {% endfor %}
+            <div style="display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 2px solid #2c3e50; font-size: 1.2rem; font-weight: bold;">
+                <span>Total:</span>
+                <span>Ksh {{ total }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

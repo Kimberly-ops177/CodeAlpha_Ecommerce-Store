@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} - TechMart{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Order #{{ order.id }}</h1>
+
+<div class="product-detail">
+    <div style="margin-bottom: 30px;">
+        <div class="order-header">
+            <div>
+                <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y, g:i A" }}</p>
+                <p><strong>Status:</strong> <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></p>
+                {% if order.status == 'ready_for_pickup' %}
+                    <p style="color: var(--success-color); font-weight: 600; margin-top: 10px;">✓ Your order is ready for pickup at our store!</p>
+                {% endif %}
+            </div>
+            <div>
+                <h2 style="color: #27ae60;">Total: Ksh {{ order.total_amount }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div style="background: var(--light-gray); padding: 20px; border-radius: 8px;">
+            <h3 style="margin-bottom: 15px; color: var(--primary-color);">Customer Information</h3>
+            <p><strong>Name:</strong> {{ order.customer_name }}</p>
+            <p><strong>Phone:</strong> {{ order.customer_phone }}</p>
+        </div>
+
+        <div style="background: var(--light-gray); padding: 20px; border-radius: 8px;">
+            <h3 style="margin-bottom: 15px; color: var(--primary-color);">Delivery Method</h3>
+            <p style="font-weight: 600;">
+                {% if order.delivery_method == 'doorstep' %}
+                    🚚 Doorstep Delivery
+                {% else %}
+                    🏪 Store Pickup
+                {% endif %}
+            </p>
+            {% if order.delivery_method == 'store_pickup' %}
+                <p style="font-size: 0.9rem; color: #666; margin-top: 8px;">
+                    Joskim Annex, Jerusalem Avenue, Juja
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if order.delivery_method == 'doorstep' %}
+    <div style="margin-bottom: 30px; background: var(--light-gray); padding: 20px; border-radius: 8px;">
+        <h3 style="margin-bottom: 15px; color: var(--primary-color);">Shipping Address</h3>
+        <p>{{ order.shipping_address|linebreaks }}</p>
+    </div>
+    {% endif %}
+
+    <div>
+        <h3>Order Items</h3>
+        <div class="cart-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>Ksh {{ item.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>Ksh {{ item.get_total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'orders' %}" class="btn">Back to Orders</a>
+        <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}
