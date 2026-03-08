@@ -20,7 +20,7 @@ pipeline {
             steps {
                 echo 'Running Django tests...'
                 sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-                sh "docker build -t ${IMAGE_NAME}:test ."
+                sh "DOCKER_BUILDKIT=0 docker build -t ${IMAGE_NAME}:test ."
                 sh "docker run --rm ${IMAGE_NAME}:test python manage.py test store --verbosity=2"
             }
         }
@@ -28,7 +28,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh "DOCKER_BUILDKIT=0 docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                 sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
             }
         }
