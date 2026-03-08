@@ -19,10 +19,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running Django tests...'
-                sh '''
-                    pip install -r requirements.txt --quiet
-                    python manage.py test store --verbosity=2
-                '''
+                sh "docker build -t ${IMAGE_NAME}:test ."
+                sh "docker run --rm ${IMAGE_NAME}:test python manage.py test store --verbosity=2"
             }
         }
 
