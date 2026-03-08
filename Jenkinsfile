@@ -47,15 +47,16 @@ pipeline {
                 echo 'Deploying to staging server...'
                 sh "docker stop ecommerce-staging || true"
                 sh "docker rm ecommerce-staging || true"
-                sh '''
+                sh """
                     docker run -d \
                         --name ecommerce-staging \
                         --publish 8001:8000 \
                         --env SECRET_KEY=django-insecure-staging-key \
-                        --env DEBUG=False \
-                        --env ALLOWED_HOSTS=localhost \
+                        --env DEBUG=True \
+                        --env ALLOWED_HOSTS=localhost,127.0.0.1 \
                         ${IMAGE_NAME}:${IMAGE_TAG}
-                '''
+                """
+                sh "docker exec ecommerce-staging python manage.py migrate --run-syncdb"
             }
         }
 
@@ -71,15 +72,16 @@ pipeline {
                 echo 'Deploying to production server...'
                 sh "docker stop ecommerce-production || true"
                 sh "docker rm ecommerce-production || true"
-                sh '''
+                sh """
                     docker run -d \
                         --name ecommerce-production \
                         --publish 8002:8000 \
                         --env SECRET_KEY=django-insecure-production-key \
-                        --env DEBUG=False \
-                        --env ALLOWED_HOSTS=localhost \
+                        --env DEBUG=True \
+                        --env ALLOWED_HOSTS=localhost,127.0.0.1 \
                         ${IMAGE_NAME}:${IMAGE_TAG}
-                '''
+                """
+                sh "docker exec ecommerce-production python manage.py migrate --run-syncdb"
             }
         }
 
